@@ -1,4 +1,3 @@
-// vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import federation from '@originjs/vite-plugin-federation';
@@ -7,20 +6,20 @@ export default defineConfig({
   plugins: [
     react(),
     federation({
-      name: 'shell_app',
-      remotes: {
-        userAuth: 'http://localhost:3001/remoteEntry.js',
-        commEngagement: 'http://localhost:3002/remoteEntry.js'
+      name: 'user_auth',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './App': './src/App'
       },
       shared: ['react', 'react-dom', '@apollo/client']
     })
   ],
   preview: {
-    port: 3000,
+    port: 3001,
     strictPort: true,
   },
   server: {
-    port: 3000,
+    port: 3001,
     strictPort: true,
   },
   build: {
@@ -29,4 +28,4 @@ export default defineConfig({
     cssCodeSplit: false,
     modulePreload: false,
   }
-});
+}); 

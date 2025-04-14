@@ -11,8 +11,9 @@ export default defineConfig({
       filename: 'remoteEntry.js',
       exposes: {
         './App': './src/App',
+        './UserComponent': './src/UserComponent',
       },
-      shared: ['react', 'react-dom', '@apollo/client', 'graphql'],
+      shared: ['react', 'react-dom', '@apollo/client', 'graphql', 'react-router-dom'],
     }),
   ],
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, gql } from '@apollo/client';
+import { useNavigate } from 'react-router-dom';  // <-- Add this for navigation
 
 const LOGIN_MUTATION = gql`
   mutation Login($username: String!, $password: String!) {
@@ -14,6 +15,8 @@ const REGISTER_MUTATION = gql`
 `;
 
 function UserComponent() {
+  const navigate = useNavigate();  // <-- Initialize navigate
+
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState('login');
@@ -24,10 +27,12 @@ function UserComponent() {
 
   const [login] = useMutation(LOGIN_MUTATION, {
     onCompleted: () => {
-      console.log('✅ Login successful, reloading page...');
+      console.log('✅ Login successful, redirecting...');
 
-      // Dispatch custom event upon successful login
+      // Dispatch custom event
       window.dispatchEvent(new CustomEvent('loginSuccess', { detail: { isLoggedIn: true } }));
+
+      // Remove the navigation since shell-app will handle it
     },
     onError: (error) => setAuthError(error.message || 'Login failed'),
   });
@@ -35,7 +40,7 @@ function UserComponent() {
   const [register] = useMutation(REGISTER_MUTATION, {
     onCompleted: () => {
       alert('Registration successful! Please log in.');
-      setActiveTab('login'); // Switch to login view
+      setActiveTab('login');
     },
     onError: (error) => setAuthError(error.message || 'Registration failed'),
   });
@@ -58,21 +63,16 @@ function UserComponent() {
         setIsSubmitting(false);
         return;
       }
-      await register({ 
-        variables: { 
-          username, 
-          email, 
-          password, 
-          role 
-        } 
-      });
+      await register({ variables: { username, email, password, role } });
     }
+
     setIsSubmitting(false);
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-900 text-white">
       <div className="w-full max-w-md p-8 bg-gray-800 rounded-lg shadow-lg">
+        
         {/* Tab Navigation */}
         <div className="flex justify-center space-x-4 mb-6">
           <button
@@ -116,33 +116,33 @@ function UserComponent() {
           </div>
 
           {activeTab === 'signup' && (
-            <div className="mb-4">
-              <label htmlFor="email" className="block text-lg font-medium">Email</label>
-              <input
-                id="email"
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full mt-2 p-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          )}
+            <>
+              <div className="mb-4">
+                <label htmlFor="email" className="block text-lg font-medium">Email</label>
+                <input
+                  id="email"
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full mt-2 p-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-          {activeTab === 'signup' && (
-            <div className="mb-4">
-              <label htmlFor="role" className="block text-lg font-medium">Role</label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className="w-full mt-2 p-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="resident">Resident</option>
-                <option value="business_owner">Business Owner</option>
-                <option value="community_organizer">Community Organizer</option>
-              </select>
-            </div>
+              <div className="mb-4">
+                <label htmlFor="role" className="block text-lg font-medium">Role</label>
+                <select
+                  id="role"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="w-full mt-2 p-3 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="resident">Resident</option>
+                  <option value="business_owner">Business Owner</option>
+                  <option value="community_organizer">Community Organizer</option>
+                </select>
+              </div>
+            </>
           )}
 
           {authError && <div className="text-red-500 mb-4">{authError}</div>}
@@ -152,13 +152,7 @@ function UserComponent() {
             disabled={isSubmitting}
             className="w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-600"
           >
-            {isSubmitting ? (
-              <div className="flex justify-center items-center">
-                <div className="spinner-border spinner-border-sm text-white" role="status">Authenticating...</div>
-              </div>
-            ) : (
-              activeTab === 'login' ? 'Login' : 'Sign Up'
-            )}
+            {isSubmitting ? 'Authenticating...' : (activeTab === 'login' ? 'Login' : 'Sign Up')}
           </button>
         </form>
       </div>

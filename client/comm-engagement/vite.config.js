@@ -13,7 +13,10 @@ export default defineConfig({
       name: 'commEngagement',
       filename: 'remoteEntry.js',
       exposes: {
-        './App': './src/App', // Adjust the path to your main App or specific component
+        './App': './src/App',
+        './ChatBox': './src/components/Chatbox',
+        './BusinessProfile': './src/components/BusinessProfile',
+        './AccountSettings': './src/components/AccountSettings',
       },
       shared: ['react', 'react-dom', '@apollo/client', 'graphql'],
     }),
